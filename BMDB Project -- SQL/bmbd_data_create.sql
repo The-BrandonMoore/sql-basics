@@ -15,7 +15,7 @@ CREATE TABLE Movie (
 	Title		varchar(255)	NOT NULL,
 	Year		smallint		NOT NULL,
 	Rating		varchar(5)		NOT NULL,
-	Dirctor		varchar(255)	NOT NULL,
+	Director		varchar(255)	NOT NULL,
 	CONSTRAINT UQ_Movie_Title_Year UNIQUE (Title, Year)
 );
 
