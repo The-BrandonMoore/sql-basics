@@ -31,14 +31,20 @@ VALUES
 GO
 
 INSERT INTO dbo.Region(Name)
-VALUES
+SELECT DISTINCT Region
+  FROM Sales_Denormalized;
+
+/*VALUES
 ('North'),
 ('South'),
 ('East'),
 ('West');
-GO
+*/
 
 INSERT INTO dbo.Customer(Name)
+SELECT DISTINCT Customer
+FROM Sales_Denormalized;
+/*
 VALUES
 ('Acme Corp'),
 ('Beta Inc'),
@@ -48,8 +54,8 @@ VALUES
 ('Omega Enterprises'),
 ('Sigma Solutions'),
 ('Zeta Partners');
-GO
-
+*/
+/*
 INSERT INTO dbo.SalesPerson(FirstName, LastName, RegionId)
 VALUES
 ('John', 'Doe', 1),
@@ -57,9 +63,20 @@ VALUES
 ('Alice', 'Brown', 3),
 ('Bob', 'Johnson', 4),
 ('Eve', 'Davis', 1);
-GO
+*/
+INSERT INTO SalesPerson (FirstName, LastName, RegionId)
+SELECT DISTINCT sd.SalesPersonFirstName, sd.SalesPersonLastName, r.ID
+	FROM Sales_Denormalized sd
+		Join Region r ON r.Name = sd.Region; 
 
 INSERT INTO dbo.Sales(SalesPersonId, SalesDate, SalesAmount, CustomerId)
+SELECT DISTINCT sp.Id, SalesDate, SalesAmount, c.Id
+	FROM Sales_Denormalized sd
+	JOIN SalesPerson sp ON sd.SalesPersonFirstName = sp.FirstName AND sd.SalesPersonLastName = sp.LastName
+	JOIN Customer c ON sd.Customer = c.Name;
+	
+
+/*INSERT INTO dbo.Sales(SalesPersonId, SalesDate, SalesAmount, CustomerId)
 VALUES
 (2, '2024-02-29', 1483, 1),
 (5, '2024-02-04', 1601, 1),
@@ -84,4 +101,19 @@ VALUES
 (2, '2024-08-21', 9600, 8),
 (3, '2024-08-20', 2300, 4),
 (4, '2024-08-21', 5600, 5);
-GO
+
+*/
+
+--validate the inserts
+-- 4 table join (Sales - Salesperson - Region - Customer)
+
+SELECT 'Join', SP. FirstName, SP.LastName,R.Name AS RegionName, SalesDate, SalesAmount, C.Name
+FROM Sales S
+JOIN Salesperson SP ON SP.Id = S.SalesPersonId
+JOIN Region R ON R.Id = SP.RegionId
+JOIN Customer C ON C.Id = S.CustomerId
+ORDER BY SalesAmount;
+
+SELECT 'Raw Data',  SalesPersonFirstName, SalesPersonLastName, Region, SalesDate, SalesAmount, Customer
+FROM Sales_Denormalized
+ORDER BY SalesAmount;
